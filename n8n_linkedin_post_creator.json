@@ -1,0 +1,176 @@
+{
+  "name": "LinkedIn Post Creator",
+  "nodes": [
+    {
+      "name": "Form Trigger",
+      "type": "n8n-nodes-base.formTrigger",
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "email",
+              "fieldType": "email",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "topic",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "target audience",
+              "requiredField": true
+            }
+          ]
+        }
+      },
+      "position": [
+        -1000,
+        0
+      ]
+    },
+    {
+      "name": "Wikipedia Enrichment",
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "parameters": {
+        "searchTerm": "={{ $json.topic }}",
+        "resultType": "summary"
+      },
+      "position": [
+        -800,
+        0
+      ]
+    },
+    {
+      "name": "Post Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a LinkedIn post (under 500 words) about {{ $json.topic }} for {{ $json['target audience'] }}.\nInclude facts and figures.\nUse this context: {{ $json.summary }}\nEnd with 3+ relevant hashtags.\nNo hyphens, headers or footers.",
+        "options": {
+          "systemMessage": "You generate impactful LinkedIn posts. Avoid headers. Use stats. Add hashtags."
+        }
+      },
+      "position": [
+        -600,
+        0
+      ]
+    },
+    {
+      "name": "Image Prompt Generator",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "parameters": {
+        "model": {
+          "value": "gpt-4.1-mini"
+        },
+        "prompt": "=Create a DALL\u00b7E prompt (max 100 words) for a professional image matching this post:\n\n{{ $json.text }}\n\nMake it modern, clean, and suitable for LinkedIn."
+      },
+      "position": [
+        -400,
+        0
+      ]
+    },
+    {
+      "name": "Generate Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "headers": {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer sk-live-aB3XkFzTYuW9nL0pQxO2jMzZQg9AqWmA6NVRZopFYvZrX5Xu"
+        },
+        "bodyParameters": {
+          "model": "dall-e-3",
+          "prompt": "={{ $json.text }}",
+          "size": "1024x1024"
+        },
+        "sendBodyAs": "json"
+      },
+      "position": [
+        -200,
+        0
+      ]
+    },
+    {
+      "name": "LinkedIn Publisher (Optional)",
+      "type": "n8n-nodes-base.linkedin",
+      "parameters": {
+        "operation": "post",
+        "content": {
+          "text": "={{ $json.postText }}",
+          "media": {
+            "type": "image",
+            "url": "={{ $json.image_url }}"
+          }
+        }
+      },
+      "credentials": {
+        "linkedinOAuth2Api": {
+          "id": "linkedin_creds_riya",
+          "name": "RIYA"
+        }
+      },
+      "position": [
+        0,
+        0
+      ]
+    }
+  ],
+  "connections": {
+    "Form Trigger": {
+      "main": [
+        [
+          {
+            "node": "Wikipedia Enrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia Enrichment": {
+      "main": [
+        [
+          {
+            "node": "Post Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Generator": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Generator": {
+      "main": [
+        [
+          {
+            "node": "Generate Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Image": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Publisher (Optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}
