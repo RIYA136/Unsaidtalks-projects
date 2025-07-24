@@ -1,11 +1,11 @@
-#Llama 2 Chatbot (Made Simple)
+# 🦙 Llama 2 Chatbot (Made Simple)
 
 Hi there! 👋  
 This is a basic chatbot project built with **Llama 2**, one of the coolest open-source AI models by Meta. You can chat with it right from your terminal using Python.
 
 ---
 
-## What This Is
+## 🌟 What This Is
 
 A fun little chatbot that:
 - Runs locally on your laptop 💻  
@@ -16,7 +16,7 @@ Perfect for learning how large language models work!
 
 ---
 
-## What You Need
+## 🛠️ What You Need
 
 - Python 3.8+
 - A free [Hugging Face account](https://huggingface.co)
@@ -24,7 +24,7 @@ Perfect for learning how large language models work!
 
 ---
 
-## How To Run It
+## 🚀 How To Run It
 
 1. **Clone the project**
 
@@ -51,7 +51,7 @@ export HUGGINGFACE_TOKEN="your_token_here"
 python chatbot_with_llama2_clean.py
 ```
 
-Type something… and it replies! 
+Type something… and it replies! 😊
 
 ---
 
@@ -65,3 +65,4 @@ Type something… and it replies!
 ## 📄 License
 
 Free to use under the MIT license.
+
